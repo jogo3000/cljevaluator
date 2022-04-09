@@ -2,13 +2,9 @@
   (:require [clojure.edn :as edn]
             [clojure.math :as math]))
 
-
 (defonce safe-operations (atom '#{* + / -}))
 
-
 (def precedence '[* / + -])
-
-
 
 (defn preferred-over? [op1 op2]
   (let [[p1 p2]
