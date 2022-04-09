@@ -2,6 +2,10 @@
   (:require [clojure.edn :as edn]
             [clojure.math :as math]))
 
+
+(defonce safe-operations (atom '#{* + / -}))
+
+
 (def precedence '[* / + -])
 
 (defn preferred-over? [op1 op2]
@@ -19,7 +23,10 @@
 
 (defn emit
   ([x] x)
-  ([f x] (list f (apply emit (listify x))))
+  ([f x]
+   (when-not (contains? @safe-operations f)
+     (throw (ex-info (str f " is not a safe operation!") {:context (list f x)})))
+   (list f (apply emit (listify x))))
   ([x operator y] (list operator
                         (apply emit (listify x))
                         (apply emit (listify y))))
@@ -45,10 +52,14 @@
 
 (apply emit '(3 *  (1 + 2)))
 
-(defn NELIÖJUURI [x]
-  (clojure.math/sqrt x))
 
-(parse-expression "NELIÖJUURI(1 + 1)")
+(defmacro defexpression [expr-name & args]
+  (swap! safe-operations conj expr-name)
+  `(defn ~expr-name ~@args))
+
+
+(defexpression NELIÖJUURI [x]
+  (clojure.math/sqrt x))
 
 (defn my-eval [expr]
   (-> expr
@@ -57,8 +68,16 @@
       eval))
 
 
-(my-eval "1 + 1 + 1")
+(comment
+  (my-eval "1 + 1 + 1")
+  ; => 3
 
-(my-eval "1 + 2 * 3")
+  (my-eval "1 + 2 * 3")
+  ;; => 7
 
-(my-eval "NELIÖJUURI(2 + 2)")
+  (my-eval "NELIÖJUURI(2 + 2)")
+  ;; => 2.0
+
+  (my-eval "PAHAFUNKTIO(2 + 3)")
+  ;; => NOT A SAFE OPERATION ERROR
+  )
