@@ -72,7 +72,7 @@
 (comment
 
   ;; Testing eval
-  (my-eval "-1")
+  (my-eval "- 1")
   ;; => -1
 
   (my-eval "1 + 1 + 1")
