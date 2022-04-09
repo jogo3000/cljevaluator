@@ -8,10 +8,11 @@
 
 (def precedence '[* / + -])
 
+
+
 (defn preferred-over? [op1 op2]
   (let [[p1 p2]
-        (map #(reduce-kv (fn [j i v]
-                           (if (= v %) i j)) -1 precedence)
+        (map #(.indexOf precedence %)
              [op1 op2])]
     (< p1 p2)))
 
