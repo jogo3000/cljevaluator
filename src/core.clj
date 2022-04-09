@@ -40,7 +40,16 @@
            op val-or-operator
            f fn-or-y
            z val-or-operator-2]
-       (emit x op (apply emit (list (list f (apply emit (listify z)))) xs)))
+       (apply
+        emit
+        (list x op
+              (apply
+               emit
+               (apply
+                emit
+                (cons (list f (apply
+                               emit
+                               (listify z))) xs))))))
 
      :else
      (let [x fn-or-x
