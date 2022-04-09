@@ -11,7 +11,11 @@
 
   (is (= 4 (my-eval "1 + (3 * 1)")))
 
-  (is (= 9 (my-eval "(1 + 2) * 3"))))
+  (is (= 9 (my-eval "(1 + 2) * 3")))
+
+  (is (= 11 (my-eval "1 + (1 + (1 + (1 + (1 + (1 + (1 + 1) + 3)))))")))
+
+  (is (= 12 (my-eval "1 + (1 + (1 + (1 + (1 + (1 + (1 + 1) * 3)))))"))))
 
 (deftest custom-expressions
   (is (= 2.0 (my-eval "NELIÖJUURI(4)")))
