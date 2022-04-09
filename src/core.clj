@@ -28,20 +28,30 @@
    (list operator
          (apply emit (listify x))
          (apply emit (listify y))))
-  ([x val-or-operator y & [op? & xs :as xsall]]
+  ([fn-or-x val-or-operator fn-or-y & [val-or-operator-2 & xs :as xsall]]
    (cond
-     (symbol? x)
-     (apply emit (concat (emit x (emit val-or-operator))) (cons y xsall))
+     (symbol? fn-or-x)
+     (let [f fn-or-x
+           v val-or-operator]
+       (apply emit (concat (emit f (emit v))) (cons fn-or-y xsall)))
 
-     (symbol? y)                        ; FIXME: This doesn't seem to work
-     (emit x val-or-operator (emit y (apply emit (listify op?))))
+     (symbol? fn-or-y)
+     (let [x fn-or-x
+           op val-or-operator
+           f fn-or-y
+           z val-or-operator-2]
+       (emit x op (apply emit (list (list f (apply emit (listify z)))) xs)))
 
      :else
-     (if-not (preferred-over? op? val-or-operator)
-       (let [expr (emit x val-or-operator y)]
-         (emit (list op? expr (apply emit xs))))
+     (let [x fn-or-x
+           op val-or-operator
+           y fn-or-y
+           op-2 val-or-operator-2]
+       (if-not (preferred-over? op-2 op)
+         (let [expr (emit x op y)]
+           (emit (list op-2 expr (apply emit xs))))
 
-       (emit y op? (first xs) val-or-operator (apply emit (cons x (rest xs))))))))
+         (emit y op-2 (first xs) op (apply emit (cons x (rest xs)))))))))
 
 (defn emit-expression [s]
   (apply emit (parse-expression s)))
