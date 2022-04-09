@@ -24,7 +24,9 @@
 
   (is (= 3.0 (my-eval "NELIÖJUURI(2 + 2) + 1")))
 
-  (is (= 4.0 (my-eval "1 + NELIÖJUURI(2 + 2) + 1"))))
+  (is (= 4.0 (my-eval "1 + NELIÖJUURI(2 + 2) + 1")))
+
+  (is (= 4.0 (my-eval "NELIÖJUURI(2 + 2) + NELIÖJUURI(2 + 2)"))))
 
 (deftest unsafe-operations-are-forbidden
   (is (thrown? clojure.lang.ExceptionInfo
