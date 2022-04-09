@@ -24,32 +24,24 @@
    (when-not (contains? @safe-operations f)
      (throw (ex-info (str f " is not a safe operation!") {:context (list f x)})))
    (list f (apply emit (listify x))))
-  ([x operator y] (list operator
-                        (apply emit (listify x))
-                        (apply emit (listify y))))
-  ([x operator y & [op? & xs]]
-   (if-not (preferred-over? op? operator)
-     (let [expr (emit x operator y)]
-       (emit (list op? expr (apply emit xs))))
+  ([x operator y]
+   (list operator
+         (apply emit (listify x))
+         (apply emit (listify y))))
+  ([x val-or-operator y & [op? & xs :as xsall]]
+   (cond
+     (symbol? x)
+     (apply emit (concat (emit x (emit val-or-operator))) (cons y xsall))
 
-     (emit y op? (first xs) operator (apply emit (cons x (rest xs)))))))
+     (symbol? y)
+     (emit x val-or-operator (emit y (apply emit op?)))
 
-(comment
-  ;; Testing emit
-  (apply emit '(1))
+     :else
+     (if-not (preferred-over? op? val-or-operator)
+       (let [expr (emit x val-or-operator y)]
+         (emit (list op? expr (apply emit xs))))
 
-  (apply emit '(1 + 1))
-
-  (apply emit '(f (1)))
-
-  (apply emit '(x + y + z))
-
-  (apply emit '(1 + 2 + 3 + 4 + 5))
-
-  (apply emit '(x + y * z + w))
-
-  (apply emit '(3 *  (1 + 2))))
-
+       (emit y op? (first xs) val-or-operator (apply emit (cons x (rest xs))))))))
 
 (defn emit-expression [s]
   (apply emit (parse-expression s)))
@@ -68,13 +60,28 @@
 
 
 (comment
+  ;; Testing emit
+  (apply emit '(1))
+
+  (apply emit '(1 + 1))
+
+  (apply emit '(f (1)))
+
+  (apply emit '(x + y + z))
+
+  (apply emit '(1 + 2 + 3 + 4 + 5))
+
+  (apply emit '(x + y * z + w))
+
+  (apply emit '(3 *  (1 + 2)))
+
 
   ;; Testing eval
   (my-eval "- 1")
   ;; => -1
 
   (my-eval "1 + 1 + 1")
-  ; => 3
+  ;; => 3
 
   (my-eval "1 + 2 * 3")
   ;; => 7
