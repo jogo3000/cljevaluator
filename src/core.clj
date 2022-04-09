@@ -54,6 +54,10 @@
   (apply emit '(3 *  (1 + 2))))
 
 
+(defn emit-expression [s]
+  (apply emit (parse-expression s)))
+
+
 (defmacro defexpression [expr-name & args]
   (swap! safe-operations conj expr-name)
   `(defn ~expr-name ~@args))
@@ -63,10 +67,7 @@
   (clojure.math/sqrt x))
 
 (defn my-eval [expr]
-  (-> expr
-      parse-expression
-      ((partial apply emit))
-      eval))
+  (eval (emit-expression expr)))
 
 
 (comment
