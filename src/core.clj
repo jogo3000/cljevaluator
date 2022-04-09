@@ -37,20 +37,21 @@
 
      (emit y op? (first xs) operator (apply emit (cons x (rest xs)))))))
 
+(comment
+  ;; Testing emit
+  (apply emit '(1))
 
-(apply emit '(1))
+  (apply emit '(1 + 1))
 
-(apply emit '(1 + 1))
+  (apply emit '(f (1)))
 
-(apply emit '(f (1)))
+  (apply emit '(x + y + z))
 
-(apply emit '(x + y + z))
+  (apply emit '(1 + 2 + 3 + 4 + 5))
 
-(apply emit '(1 + 2 + 3 + 4 + 5))
+  (apply emit '(x + y * z + w))
 
-(apply emit '(x + y * z + w))
-
-(apply emit '(3 *  (1 + 2)))
+  (apply emit '(3 *  (1 + 2))))
 
 
 (defmacro defexpression [expr-name & args]
@@ -69,6 +70,8 @@
 
 
 (comment
+
+  ;; Testing eval
   (my-eval "1 + 1 + 1")
   ; => 3
 
