@@ -1,5 +1,6 @@
 (ns core
-  (:require [clojure.edn :as edn]))
+  (:require [clojure.edn :as edn]
+            [clojure.math :as math]))
 
 (def precedence '[* / + -])
 
@@ -44,12 +45,20 @@
 
 (apply emit '(3 *  (1 + 2)))
 
-
-
+(defn NELIÖJUURI [x]
+  (clojure.math/sqrt x))
 
 (parse-expression "NELIÖJUURI(1 + 1)")
 
-(-> "1 + 1 + 2"
-    parse-expression
-    ((partial apply emit))
-    eval)
+(defn my-eval [expr]
+  (-> expr
+      parse-expression
+      ((partial apply emit))
+      eval))
+
+
+(my-eval "1 + 1 + 1")
+
+(my-eval "1 + 2 * 3")
+
+(my-eval "NELIÖJUURI(2 + 2)")
