@@ -33,8 +33,8 @@
      (symbol? x)
      (apply emit (concat (emit x (emit val-or-operator))) (cons y xsall))
 
-     (symbol? y)
-     (emit x val-or-operator (emit y (apply emit op?)))
+     (symbol? y)                        ; FIXME: This doesn't seem to work
+     (emit x val-or-operator (emit y (apply emit (listify op?))))
 
      :else
      (if-not (preferred-over? op? val-or-operator)
