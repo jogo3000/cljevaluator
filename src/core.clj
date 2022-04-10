@@ -20,26 +20,33 @@
 
 (defn emit
   ([x] x)
-  ([f x]
-   (when-not (contains? @safe-operations f)
-     (throw (ex-info (str f " is not a safe operation!") {:context (list f x)})))
-   (list f (apply emit (listify x))))
+  ([f-or-x args-or-y]
+   (cond
+     (symbol? f-or-x)
+     (let [f f-or-x
+           args args-or-y]
+       (when-not (contains? @safe-operations f)
+         (throw (ex-info (str f " is not a safe operation!") {:context (list f args)})))
+       (list f (apply emit (listify args))))
+     :else
+     (list (apply emit (listify f-or-x))
+           (apply emit (listify args-or-y)))))
   ([x operator y]
    (list operator
          (apply emit (listify x))
          (apply emit (listify y))))
-  ([fn-or-x val-or-operator fn-or-y & [val-or-operator-2 & xs :as xsall]]
+  ([fn-or-x x-or-operator fn-or-y & [y-or-operator & xs :as xsall]]
    (cond
-     (symbol? fn-or-x)
+     (and (symbol? fn-or-x) (list? x-or-operator))
      (let [f fn-or-x
-           v val-or-operator]
-       (apply emit (concat (emit f (emit v))) (cons fn-or-y xsall)))
+           f-args x-or-operator]
+       (apply emit (concat (emit f (emit f-args))) (cons fn-or-y xsall)))
 
-     (symbol? fn-or-y)
+     (and (symbol? fn-or-y) (list? y-or-operator))
      (let [x fn-or-x
-           op val-or-operator
+           op x-or-operator
            f fn-or-y
-           z val-or-operator-2]
+           y y-or-operator]
        (apply
         emit
         (list x op
@@ -49,13 +56,13 @@
                 emit
                 (cons (list f (apply
                                emit
-                               (listify z))) xs))))))
+                               (listify y))) xs))))))
 
      :else
      (let [x fn-or-x
-           op val-or-operator
+           op x-or-operator
            y fn-or-y
-           op-2 val-or-operator-2]
+           op-2 y-or-operator]
        (if-not (preferred-over? op-2 op)
          (let [expr (emit x op y)]
            (emit (list op-2 expr (apply emit xs))))
@@ -73,6 +80,9 @@
 
 (defexpression NELIÖJUURI [x]
   (clojure.math/sqrt x))
+
+(defexpression POW [x y]
+  (clojure.math/pow x y))
 
 (defn my-eval [expr]
   (eval (emit-expression expr)))
